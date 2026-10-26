@@ -93,7 +93,19 @@ update
 
 `ferox` utilise les extensions `php,html,js,json,txt,log`, 50 threads, exclut `/cgi-bin/` et active `--burp-replay` : prévoir le proxy Burp correspondant. Si la sélection de wordlist est annulée, il utilise `big.txt`.
 
-`update` examine les gestionnaires présents parmi APT, Snap, Flatpak et pip utilisateur. La confirmation accepte par défaut avec Entrée. Pour APT, l’installation est suivie d’un nettoyage (`autoremove`, `autoclean`, `clean`).
+`update` examine APT, Snap, Flatpak, pip utilisateur et npm global. `Y`, `y` ou Entrée confirment ; toute autre réponse annule. Une entrée fermée (EOF) annule aussi.
+
+Sur une nouvelle machine APT, la fonction ajoute d’abord les dépôts officiels VS Code et Chrome manquants, avec leurs clés GPG dédiées et `Signed-By`, puis actualise les index. Les configurations actives `.list` et `.sources` existantes sont conservées ; les fichiers de sauvegarde et les entrées désactivées ne comptent pas comme des dépôts actifs. Chrome est ajouté uniquement sur `amd64`. Cela ne déclenche pas l’installation de Chrome ou VS Code. Cette préparation a lieu avant la confirmation des mises à jour.
+
+Pour APT, une installation réussie est suivie de `autoremove` et `clean`. pip utilise une liste JSON des paquets utilisateur obsolètes ; il est ignoré lorsqu’un environnement virtuel Python/Conda est actif. Le marqueur `EXTERNALLY-MANAGED` (PEP 668) est détecté avant toute tentative : pip utilisateur est alors ignoré avec un message explicite. Ces paquets restent non mis à jour ; utiliser des environnements virtuels ou pipx pour ces outils. Aucun `--break-system-packages` n’est ajouté. npm met à jour uniquement les paquets globaux vers les versions `latest` affichées, sans modifier les projets locaux. Si les dossiers du préfixe global ne sont pas accessibles en écriture, le recours à `sudo` est annoncé avant confirmation ; le chemin de Node et le préfixe sont conservés explicitement. Un préfixe utilisateur accessible reste mis à jour sans `sudo`.
+
+Les vérifications et installations échouées sont signalées et entraînent un code de retour non nul. Conserver le dossier `helpers/` avec `update.fish`.
+
+`update` vérifie aussi l’installateur **Obsidian installé en `.deb`** et **Burp installé nativement**. Après confirmation, il télécharge les versions officielles et vérifie leur SHA-256 : installation du `.deb` Obsidian via APT, ou lancement de l’assistant Burp (conserver le dossier existant). Une application ouverte est laissée intacte et sa mise à jour est signalée comme non appliquée. Les versions stables de Burp sont utilisées, pas les Early Adopter.
+
+Burp est recherché dans `~/BurpSuitePro`, `~/BurpSuite` et `~/BurpSuiteCommunity`. Pour un autre emplacement, définir `set -gx BURP_HOME /chemin/vers/BurpSuite`. Les installations Obsidian AppImage ne sont pas gérées ; celles sous Snap/Flatpak passent par leur gestionnaire habituel. Les logiciels absents ne sont pas installés.
+
+Sources officielles : [dépôt VS Code](https://code.visualstudio.com/docs/setup/linux), [clés Google](https://www.google.com/linuxrepositories/), [versions Obsidian](https://github.com/obsidianmd/obsidian-releases/releases), [installateurs Burp](https://portswigger.net/burp/downloads).
 
 ## Dépendances et chemins locaux
 
@@ -107,7 +119,7 @@ Installer les outils correspondant aux fonctions utilisées :
 | `ferox` | `feroxbuster`, `fzf`, SecLists, proxy Burp pour le replay |
 | `enum4linux-ng` | Installation locale d’enum4linux-ng et son environnement Python |
 | `autoenv` | `python3` avec le module `venv` |
-| `update` | Les gestionnaires de paquets à utiliser, `sudo` pour APT/Snap |
+| `update` | `python3`, les gestionnaires à utiliser, `sudo` pour APT/Snap ; `gpg` et les certificats CA pour ajouter les dépôts |
 
 Les wordlists sont attendues ici :
 
