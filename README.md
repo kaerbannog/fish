@@ -33,7 +33,7 @@ source ~/.config/fish/functions/ip_nmap.fish
 | `ip_recon` | `ip_recon <IP>` | Détection du domaine web, recherche de vhosts et ajout interactif à `/etc/hosts`. |
 | `ffuf_subfinder` | `ffuf_subfinder <URL> [options ffuf]` | Recherche de vhosts par l’en-tête HTTP `Host`. |
 | `ferox` | `ferox <URL> [options feroxbuster]` | Recherche de chemins web avec sélection de wordlist via `fzf`. |
-| `enum4linux-ng` | `enum4linux-ng [options]` | Lance l’installation locale d’enum4linux-ng. |
+| `enum4linux-ng` | `enum4linux-ng [options]` | Installe si nécessaire dans `~/tools`, puis lance enum4linux-ng. |
 | `autoenv` | `autoenv` | Crée si nécessaire un environnement Python `.env` dans le dossier courant et l’active. |
 | `update` | `update` | Vérifie les mises à jour disponibles et propose leur installation. |
 
@@ -128,11 +128,12 @@ Les wordlists sont attendues ici :
 ~/tools/SecLists/Discovery/Web-Content/
 ```
 
-Le wrapper `enum4linux-ng.fish` contient des chemins absolus à adapter sur une autre machine :
+`enum4linux-ng` clone le [dépôt officiel](https://github.com/cddmp/enum4linux-ng) dans `~/tools/enum4linux-ng` s’il manque, crée un environnement Python `venv/` et y installe les dépendances. Sur Debian/Ubuntu, les dépendances système manquantes sont installées avec `sudo apt-get` (`git`, `python3`, `python3-venv`, `smbclient`, `samba-common-bin`). Une installation fonctionnelle est réutilisée. Au maximum une fois par jour, la fonction vérifie la dernière révision du dépôt officiel (délai réseau maximal de 8 secondes). Si elle est plus récente, `Y`, `y` ou Entrée acceptent la mise à jour ; les autres réponses conservent la version locale. La mise à jour utilise uniquement une avance rapide Git (`--ff-only`), puis actualise les dépendances du venv. Les modifications locales suivies ou un historique divergent empêchent cette mise à jour. Hors ligne, l’outil démarre avec sa version locale. Cette vérification compare les commits, ce qui détecte aussi les corrections sans changement du numéro de version. Le cache est stocké dans `.git/fish-version-check`.
 
-```text
-/home/grut/tools/enum4linux-ng/venv/bin/python
-/home/grut/tools/enum4linux-ng/enum4linux-ng.py
+Si l’outil ou ses dépendances manquent, la fonction propose l’installation : `Y`, `y` ou Entrée acceptent, toute autre réponse (ou EOF) annule. Après installation, la commande initiale est exécutée avec ses arguments. Aucun paramètre d’installation supplémentaire :
+
+```fish
+enum4linux-ng -A 10.129.247.123
 ```
 
 ## Mise à jour du dépôt
