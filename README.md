@@ -91,7 +91,7 @@ deactivate
 update
 ```
 
-`ferox` utilise les extensions `php,html,js,json,txt,log`, 50 threads, exclut `/cgi-bin/` et active `--burp-replay` : prévoir le proxy Burp correspondant. Si la sélection de wordlist est annulée, il utilise `big.txt`.
+`ferox` utilise les extensions `php,html,js,json,txt,log`, 50 threads, exclut les segments de chemin `cgi-bin` et tout leur contenu, à n’importe quel niveau (récursion conservée ailleurs) et active `--burp-replay` : prévoir le proxy Burp correspondant. Si la sélection de wordlist est annulée, il utilise `big.txt`.
 
 `update` examine APT, Snap, Flatpak, pip utilisateur et npm global. `Y`, `y` ou Entrée confirment ; toute autre réponse annule. Une entrée fermée (EOF) annule aussi.
 

@@ -30,6 +30,6 @@ function ferox
                 -t 50 \
                 -w "$wordlist" \
                 -u "$url" \
-                --dont-scan "$url/cgi-bin/" \
+                --dont-scan '^[^:]+://[^/]+/([^/?#]*/)*cgi-bin(/|[?#]|$)' \
                 $extra_args
 end
